@@ -1,0 +1,8 @@
+D:\b\iBeaconProto\Provider.AltBeacon\bin\Debug\netstandard2.0\Provider.AltBeacon.deps.json
+D:\b\iBeaconProto\Provider.AltBeacon\bin\Debug\netstandard2.0\Provider.AltBeacon.dll
+D:\b\iBeaconProto\Provider.AltBeacon\bin\Debug\netstandard2.0\Provider.AltBeacon.pdb
+D:\b\iBeaconProto\Provider.AltBeacon\obj\Debug\netstandard2.0\Provider.AltBeacon.AssemblyInfoInputs.cache
+D:\b\iBeaconProto\Provider.AltBeacon\obj\Debug\netstandard2.0\Provider.AltBeacon.AssemblyInfo.cs
+D:\b\iBeaconProto\Provider.AltBeacon\obj\Debug\netstandard2.0\Provider.AltBeacon.csproj.CoreCompileInputs.cache
+D:\b\iBeaconProto\Provider.AltBeacon\obj\Debug\netstandard2.0\Provider.AltBeacon.dll
+D:\b\iBeaconProto\Provider.AltBeacon\obj\Debug\netstandard2.0\Provider.AltBeacon.pdb

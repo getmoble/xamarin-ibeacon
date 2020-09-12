@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "jcULfIhHuSdG0Dylx+1ywfpg1SMqquGfmfKW+OiYqnURUL0BpkZYk1KzgV935KkLImBYUEq+eVFy/bH+PMX94A==",
+  "success": true,
+  "projectFilePath": "D:\\b\\iBeaconProto\\iBeaconProto\\iBeaconProto.iOS\\iBeaconProto.iOS.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Mob\\.nuget\\packages\\plugin.permissions\\6.0.1\\plugin.permissions.6.0.1.nupkg.sha512",
+    "C:\\Users\\Mob\\.nuget\\packages\\xamarin.essentials\\1.5.3.2\\xamarin.essentials.1.5.3.2.nupkg.sha512",
+    "C:\\Users\\Mob\\.nuget\\packages\\xamarin.forms\\4.8.0.1364\\xamarin.forms.4.8.0.1364.nupkg.sha512"
+  ],
+  "logs": []
+}
