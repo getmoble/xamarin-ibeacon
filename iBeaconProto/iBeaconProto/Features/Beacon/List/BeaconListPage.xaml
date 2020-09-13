@@ -14,6 +14,7 @@
             <Button
                 Grid.Row="1"
                 Command="{Binding ActionCommand}"
+                IsEnabled="{Binding CanScan}"
                 Text="{Binding IsScanning, Converter={StaticResource RangingStatusToTextConverter}}" />
             <ListView
                 Grid.Row="0"
@@ -40,16 +41,19 @@
                                 <Label
                                     Grid.Row="0"
                                     Grid.ColumnSpan="2"
+                                    FontSize="16"
                                     Text="{Binding UUID}"
                                     TextColor="White" />
                                 <Label
                                     Grid.Row="1"
                                     Grid.Column="0"
+                                    FontSize="16"
                                     Text="{Binding Major, StringFormat='Major:  {0}'}"
                                     TextColor="White" />
                                 <Label
                                     Grid.Row="1"
                                     Grid.Column="1"
+                                    FontSize="16"
                                     Text="{Binding Minor, StringFormat='Minor:  {0}'}"
                                     TextColor="White" />
                             </Grid>

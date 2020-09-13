@@ -6,7 +6,6 @@ namespace Provider.AltBeacon.Interfaces
 	public interface IAltBeaconService
 	{
 		event Action<RangingBeaconEventArgs> OnRangingBeacons;
-
 		event Action<MonitorBeaconEventArgs> OnMonitorBeacons;
 
 		void InitializeService();	

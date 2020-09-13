@@ -27,16 +27,19 @@
                 <Label
                     Grid.Row="0"
                     Grid.ColumnSpan="2"
+                    FontSize="16"
                     Text="{Binding Beacon.UUID}"
                     TextColor="White" />
                 <Label
                     Grid.Row="1"
                     Grid.Column="0"
+                    FontSize="16"
                     Text="{Binding Beacon.Major, StringFormat='Major:  {0}'}"
                     TextColor="White" />
                 <Label
                     Grid.Row="1"
                     Grid.Column="1"
+                    FontSize="16"
                     Text="{Binding Beacon.Minor, StringFormat='Minor:  {0}'}"
                     TextColor="White" />
             </Grid>

@@ -1,6 +1,5 @@
 ﻿using iBeaconProto.Features.Beacon.List;
 using Provider.AltBeacon.Interfaces;
-using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Essentials;

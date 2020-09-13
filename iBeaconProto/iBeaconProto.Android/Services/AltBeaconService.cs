@@ -8,23 +8,27 @@ using Provider.AltBeacon.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 [assembly: Xamarin.Forms.Dependency(typeof(AltBeaconService))]
 namespace iBeaconProto.Droid.Services
 {
     public class AltBeaconService : Java.Lang.Object, IAltBeaconService
     {
+        object _lock = new object();
+
+        string foregroundServiceChannelId = "foregroundService";
+
         public event Action<RangingBeaconEventArgs> OnRangingBeacons;
 
         public event Action<MonitorBeaconEventArgs> OnMonitorBeacons;
 
         readonly MonitorNotifier _monitorNotifier;
+        
         readonly RangeNotifier _rangeNotifier;
+
+        List<SharedBeacon> _sharedBeacons = new List<SharedBeacon>();
         
         BeaconManager _beaconManager;
-
-        Org.Altbeacon.Beacon.Region _emptyRegion;
 
         public AltBeaconService()
         {
@@ -48,7 +52,7 @@ namespace iBeaconProto.Droid.Services
                 _beaconManager = InitializeBeaconManager();
         }
 
-        private BeaconManager InitializeBeaconManager()
+        BeaconManager InitializeBeaconManager()
         {
             // Enable the BeaconManager 
             BeaconManager bm = BeaconManager.GetInstanceForApplication(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity);
@@ -64,7 +68,7 @@ namespace iBeaconProto.Droid.Services
             _rangeNotifier.DidRangeBeaconsInRegionComplete += RangingBeaconsInRegion;
 
             bm.EnableForegroundServiceScanning(GetForegroundServiceNotification(), 456);
-            
+
             bm.BackgroundScanPeriod = 1100;
             bm.BackgroundBetweenScanPeriod = 5000;
 
@@ -78,9 +82,6 @@ namespace iBeaconProto.Droid.Services
             return bm;
         }
 
-        string foregroundServiceChannelId = "foregroundService";
-        string channelName = "ForegroundService";
-
         public Notification GetForegroundServiceNotification()
         {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, foregroundServiceChannelId);
@@ -88,14 +89,13 @@ namespace iBeaconProto.Droid.Services
             Intent intent = new Intent(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, typeof(AltBeaconService));
             PendingIntent pendingIntent = PendingIntent.GetActivity(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, 1, intent, PendingIntentFlags.UpdateCurrent);
             builder.SetContentIntent(pendingIntent);
-
             return builder.Build();
         }
-        
+
         public void StartRanging(string name, string uuid)
         {
             BeaconManagerImpl.AddRangeNotifier(_rangeNotifier);
-            
+
             try
             {
                 var tagRegion = new Region(name, Identifier.Parse(uuid), null, null);
@@ -150,7 +150,7 @@ namespace iBeaconProto.Droid.Services
             }
         }
 
-        private void DeterminedStateForRegionComplete(object sender, MonitorEventArgs e)
+        void DeterminedStateForRegionComplete(object sender, MonitorEventArgs e)
         {
             Console.WriteLine("DeterminedStateForRegionComplete");
         }
@@ -198,11 +198,7 @@ namespace iBeaconProto.Droid.Services
                 });
             }
         }
-
-        List<SharedBeacon> _sharedBeacons = new List<SharedBeacon>();
-
-        object _lock = new object();
-
+        
         void RangingBeaconsInRegion(object sender, RangeEventArgs e)
         {
             _sharedBeacons = new List<SharedBeacon>();

@@ -1,12 +1,10 @@
 using System;
-using System.ComponentModel;
 using System.Drawing;
 
 namespace Provider.AltBeacon.Models
 {
-	public class SharedBeacon
+    public class SharedBeacon
 	{
-
         public int Rssi { get; set; }
         public string BluetoothAddress { get; }
         public string Id1 { get; set; }

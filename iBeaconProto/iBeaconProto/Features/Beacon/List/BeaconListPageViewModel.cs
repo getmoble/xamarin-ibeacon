@@ -1,7 +1,5 @@
 ﻿using iBeaconProto.Features.Beacon.Status;
 using iBeaconProto.Utils;
-using Plugin.Permissions;
-using Plugin.Permissions.Abstractions;
 using Provider.AltBeacon.Interfaces;
 using Provider.AltBeacon.Models;
 using System;
@@ -14,6 +12,13 @@ namespace iBeaconProto.Features.Beacon.List
 {
     public class BeaconListPageViewModel : ViewModelBase
     {
+        bool _canScan;
+        public bool CanScan
+        {
+            get => _canScan;
+            set => SetProperty(ref _canScan, value);
+        }
+
         bool _isScanning;
         public bool IsScanning
         {
@@ -47,7 +52,7 @@ namespace iBeaconProto.Features.Beacon.List
             page.Appearing += Page_Appearing;
             page.Disappearing += Page_Disappearing;
             
-            ActionCommand = new Command(async () =>
+            ActionCommand = new Command(() =>
             {
                 if (!IsScanning)
                 {
@@ -74,18 +79,21 @@ namespace iBeaconProto.Features.Beacon.List
 
         void Page_Disappearing(object sender, System.EventArgs e)
         {
-            _altBeaconService.OnRangingBeacons -= AltBeaconService_OnRangingBeacons;
-            _altBeaconService.StopRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+            if (CanScan)
+            {
+                _altBeaconService.OnRangingBeacons -= AltBeaconService_OnRangingBeacons;
+                _altBeaconService.StopRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+            }
         }
 
         async void Page_Appearing(object sender, System.EventArgs e)
         {
-            var status = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Location);
-
-            if (status != PermissionStatus.Granted)
-                status = await Permissions.CheckPermissions(Permission.Location);
-            
-            _altBeaconService.OnRangingBeacons += AltBeaconService_OnRangingBeacons;
+            var hasPermissions = await AppPermissions.CheckPermissions();
+            if (hasPermissions)
+            {
+                CanScan = hasPermissions;
+                _altBeaconService.OnRangingBeacons += AltBeaconService_OnRangingBeacons;
+            }
         }
 
         void AltBeaconService_OnRangingBeacons(RangingBeaconEventArgs obj)
