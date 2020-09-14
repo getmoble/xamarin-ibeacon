@@ -9,26 +9,26 @@ namespace iBeaconProto
         public App()
         {
             InitializeComponent();
-            DependencyService.Get<IAltBeaconService>().InitializeService();
+            DependencyService.Get<IBeaconService>().InitializeService();
             MainPage = new NavigationPage(new BeaconListPage());
         }
 
         protected override void OnStart()
         {
             // Handle when your app starts
-            DependencyService.Get<IAltBeaconService>().SetBackgroundMode(false);
+            DependencyService.Get<IBeaconService>().SetBackgroundMode(false);
         }
 
         protected override void OnSleep()
         {
             // Handle when your app sleeps
-            DependencyService.Get<IAltBeaconService>().SetBackgroundMode(true);
+            DependencyService.Get<IBeaconService>().SetBackgroundMode(true);
         }
 
         protected override void OnResume()
         {
             // Handle when your app resumes
-            DependencyService.Get<IAltBeaconService>().SetBackgroundMode(false);
+            DependencyService.Get<IBeaconService>().SetBackgroundMode(false);
         }
     }
 }

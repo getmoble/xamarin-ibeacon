@@ -43,11 +43,11 @@ namespace iBeaconProto.Features.Beacon.List
         public ICommand ActionCommand { get; set; }
         public ICommand GotoStatusPageCommand { get; set; }
 
-        IAltBeaconService _altBeaconService;
+        IBeaconService _beaconService;
 
         public BeaconListPageViewModel(Page page)
         {
-            _altBeaconService = DependencyService.Get<IAltBeaconService>();
+            _beaconService = DependencyService.Get<IBeaconService>();
 
             page.Appearing += Page_Appearing;
             page.Disappearing += Page_Disappearing;
@@ -56,11 +56,11 @@ namespace iBeaconProto.Features.Beacon.List
             {
                 if (!IsScanning)
                 {
-                    _altBeaconService.StartRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+                    _beaconService.StartRanging(Constants.Beacon.UUID);
                 }
                 else
                 {
-                    _altBeaconService.StopRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+                    _beaconService.StopRanging(Constants.Beacon.UUID);
                 }
 
                 IsScanning = !IsScanning;
@@ -70,7 +70,7 @@ namespace iBeaconProto.Features.Beacon.List
             {
                 if(SelectedData != null)
                 {
-                    _altBeaconService.StopRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+                    _beaconService.StopRanging(Constants.Beacon.UUID);
                     await page.Navigation.PushAsync(new BeaconStatusPage(SelectedData));
                     SelectedData = null;
                 }
@@ -81,8 +81,8 @@ namespace iBeaconProto.Features.Beacon.List
         {
             if (CanScan)
             {
-                _altBeaconService.OnRangingBeacons -= AltBeaconService_OnRangingBeacons;
-                _altBeaconService.StopRanging(Constants.Beacon.Name, Constants.Beacon.UUID);
+                _beaconService.OnRangingBeacons -= AltBeaconService_OnRangingBeacons;
+                _beaconService.StopRanging(Constants.Beacon.UUID);
             }
         }
 
@@ -92,7 +92,7 @@ namespace iBeaconProto.Features.Beacon.List
             if (hasPermissions)
             {
                 CanScan = hasPermissions;
-                _altBeaconService.OnRangingBeacons += AltBeaconService_OnRangingBeacons;
+                _beaconService.OnRangingBeacons += AltBeaconService_OnRangingBeacons;
             }
         }
 

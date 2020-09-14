@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace Provider.AltBeacon.Models
 {
-    public class SharedBeacon
+    public class Beacon
 	{
         public int Rssi { get; set; }
         public string BluetoothAddress { get; }
@@ -83,7 +83,7 @@ namespace Provider.AltBeacon.Models
             }
         } 
 
-        public SharedBeacon (string bluetoothName, string bluetoothAddress, string id1, string id2, string id3, double distance, int rssi)
+        public Beacon (string bluetoothName, string bluetoothAddress, string id1, string id2, string id3, double distance, int rssi)
         {
             BluetoothName = bluetoothName;
             BluetoothAddress = bluetoothAddress;

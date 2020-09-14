@@ -32,25 +32,25 @@ namespace iBeaconProto.Features.Beacon.Status
 
         public ICommand ActionCommand { get; set; }
 
-        IAltBeaconService _altBeaconService;
+        IBeaconService _altBeaconService;
 
         public BeaconStatusPageViewModel(BeaconViewModel beacon)
         {
             Beacon = beacon;
 
-            _altBeaconService = DependencyService.Get<IAltBeaconService>();
+            _altBeaconService = DependencyService.Get<IBeaconService>();
             
             ActionCommand = new Command(() =>
             {
                 if (!IsMonitoring)
                 {
                     _altBeaconService.OnMonitorBeacons += AltBeaconService_OnMonitorBeacons;
-                    _altBeaconService.StartMonitoring(Constants.Beacon.Name, Constants.Beacon.UUID);
+                    _altBeaconService.StartMonitoring(beacon.UUID, beacon.Major, beacon.Minor);
                 }
                 else
                 {
                     _altBeaconService.OnMonitorBeacons -= AltBeaconService_OnMonitorBeacons;
-                    _altBeaconService.StopMonitoring(Constants.Beacon.Name, Constants.Beacon.UUID);
+                    _altBeaconService.StopMonitoring(beacon.UUID, beacon.Major, beacon.Minor);
                 }
 
                 IsMonitoring = !IsMonitoring;
@@ -59,7 +59,7 @@ namespace iBeaconProto.Features.Beacon.Status
 
         void  AltBeaconService_OnMonitorBeacons(Provider.AltBeacon.Models.MonitorBeaconEventArgs obj)
         {
-            Status = obj.Event == "Enter"? "Beacon Found": "Beacon not Found";
+            Status = obj.Event == "Enter"? "Beacon Found": "Beacon Lost";
 
             Task.Run(async () =>
             {

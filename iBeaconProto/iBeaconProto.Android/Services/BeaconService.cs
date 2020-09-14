@@ -9,28 +9,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-[assembly: Xamarin.Forms.Dependency(typeof(AltBeaconService))]
+[assembly: Xamarin.Forms.Dependency(typeof(BeaconService))]
 namespace iBeaconProto.Droid.Services
 {
-    public class AltBeaconService : Java.Lang.Object, IAltBeaconService
+    public class BeaconService : Java.Lang.Object, IBeaconService
     {
         object _lock = new object();
 
         string foregroundServiceChannelId = "foregroundService";
+
+        string _rangingRegion = "ranging-region";
+        string _monitorRegion = "monitor-region";
+
 
         public event Action<RangingBeaconEventArgs> OnRangingBeacons;
 
         public event Action<MonitorBeaconEventArgs> OnMonitorBeacons;
 
         readonly MonitorNotifier _monitorNotifier;
-        
+
         readonly RangeNotifier _rangeNotifier;
 
-        List<SharedBeacon> _sharedBeacons = new List<SharedBeacon>();
-        
+        List<Provider.AltBeacon.Models.Beacon> _sharedBeacons = new List<Provider.AltBeacon.Models.Beacon>();
+
         BeaconManager _beaconManager;
 
-        public AltBeaconService()
+        public BeaconService()
         {
             _monitorNotifier = new MonitorNotifier();
             _rangeNotifier = new RangeNotifier();
@@ -64,7 +68,6 @@ namespace iBeaconProto.Droid.Services
 
             _monitorNotifier.EnterRegionComplete += EnteredRegion;
             _monitorNotifier.ExitRegionComplete += ExitedRegion;
-            _monitorNotifier.DetermineStateForRegionComplete += DeterminedStateForRegionComplete;
             _rangeNotifier.DidRangeBeaconsInRegionComplete += RangingBeaconsInRegion;
 
             bm.EnableForegroundServiceScanning(GetForegroundServiceNotification(), 456);
@@ -85,74 +88,47 @@ namespace iBeaconProto.Droid.Services
         public Notification GetForegroundServiceNotification()
         {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, foregroundServiceChannelId);
-            builder.SetContentTitle("Scanning for Beacons");
-            Intent intent = new Intent(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, typeof(AltBeaconService));
+            builder
+                .SetContentTitle("iBeacon Proto")
+                .SetContentText("Monitoring Beacons");
+            Intent intent = new Intent(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, typeof(BeaconService));
             PendingIntent pendingIntent = PendingIntent.GetActivity(Plugin.CurrentActivity.CrossCurrentActivity.Current.Activity, 1, intent, PendingIntentFlags.UpdateCurrent);
             builder.SetContentIntent(pendingIntent);
             return builder.Build();
         }
 
-        public void StartRanging(string name, string uuid)
+        public void StartRanging(string uuid)
         {
             BeaconManagerImpl.AddRangeNotifier(_rangeNotifier);
-
-            try
-            {
-                var tagRegion = new Region(name, Identifier.Parse(uuid), null, null);
-                BeaconManagerImpl.StartRangingBeaconsInRegion(tagRegion);
-            }
-            catch (Exception ex)
-            {
-
-                System.Diagnostics.Debug.WriteLine("StartRangingException: " + ex.Message);
-            }
-
+            var tagRegion = new Region(_rangingRegion, Identifier.Parse(uuid), null, null);
+            BeaconManagerImpl.StartRangingBeaconsInRegion(tagRegion);
         }
 
-        public void StopRanging(string name, string uuid)
+        public void StopRanging(string uuid)
         {
             if (_beaconManager != null)
             {
-                try
-                {
-                    var tagRegion = new Region(name, Identifier.Parse(uuid), null, null);
-                    BeaconManagerImpl.StopRangingBeaconsInRegion(tagRegion);
-                    BeaconManagerImpl.RemoveAllRangeNotifiers();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("StopRangingException: " + ex.Message);
-                }
+                var tagRegion = new Region(_rangingRegion, Identifier.Parse(uuid), null, null);
+                BeaconManagerImpl.StopRangingBeaconsInRegion(tagRegion);
+                BeaconManagerImpl.RemoveAllRangeNotifiers();
             }
         }
 
-        public void StartMonitoring(string name, string uuid)
+        public void StartMonitoring(string uuid, string major, string minor)
         {
-            var tagRegion = new Region(name, Identifier.Parse(uuid), null, null);
+            var tagRegion = new Region(_monitorRegion, Identifier.Parse(uuid), Identifier.Parse(major), Identifier.Parse(minor));
             BeaconManagerImpl.AddMonitorNotifier(_monitorNotifier);
             BeaconManagerImpl.StartMonitoringBeaconsInRegion(tagRegion);
         }
 
-        public void StopMonitoring(string name, string uuid)
+        public void StopMonitoring(string uuid, string major, string minor)
         {
             if (_beaconManager != null)
             {
-                try
-                {
-                    var tagRegion = new Region(name, Identifier.Parse(uuid), null, null);
-                    BeaconManagerImpl.StopMonitoringBeaconsInRegion(tagRegion);
-                    BeaconManagerImpl.RemoveAllMonitorNotifiers();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("StopMonitoringException: " + ex.Message);
-                }
+                var tagRegion = new Region(_monitorRegion, Identifier.Parse(uuid), Identifier.Parse(major), Identifier.Parse(minor));
+                BeaconManagerImpl.StopMonitoringBeaconsInRegion(tagRegion);
+                BeaconManagerImpl.RemoveAllMonitorNotifiers();
             }
-        }
-
-        void DeterminedStateForRegionComplete(object sender, MonitorEventArgs e)
-        {
-            Console.WriteLine("DeterminedStateForRegionComplete");
         }
 
         void ExitedRegion(object sender, MonitorEventArgs e)
@@ -165,8 +141,6 @@ namespace iBeaconProto.Droid.Services
                 else
                     region = e.Region.Id1.ToString().ToUpper();
             }
-
-            System.Diagnostics.Debug.WriteLine("ExitedRegion");
 
             if (OnMonitorBeacons != null)
             {
@@ -188,8 +162,6 @@ namespace iBeaconProto.Droid.Services
                     region = e.Region.Id1.ToString().ToUpper();
             }
 
-            System.Diagnostics.Debug.WriteLine("EnteredRegion");
-
             if (OnMonitorBeacons != null)
             {
                 OnMonitorBeacons.Invoke(new MonitorBeaconEventArgs()
@@ -198,19 +170,17 @@ namespace iBeaconProto.Droid.Services
                 });
             }
         }
-        
+
         void RangingBeaconsInRegion(object sender, RangeEventArgs e)
         {
-            _sharedBeacons = new List<SharedBeacon>();
+            _sharedBeacons = new List<Provider.AltBeacon.Models.Beacon>();
 
             lock (_lock)
             {
-
                 // Get all beacons and create the SharedBeacon
-                foreach (Beacon beacon in e.Beacons)
+                foreach (Org.Altbeacon.Beacon.Beacon beacon in e.Beacons)
                 {
-                    System.Diagnostics.Debug.WriteLine(string.Format("NAME {0} - IP {1} - {2}dB", beacon.BluetoothName, beacon.BluetoothAddress, beacon.Rssi));
-                    _sharedBeacons.Add(new SharedBeacon(beacon.BluetoothName, beacon.BluetoothAddress, beacon.Id1.ToString(), beacon.Id2.ToString(), beacon.Id3.ToString(), beacon.Distance, beacon.Rssi));
+                    _sharedBeacons.Add(new Provider.AltBeacon.Models.Beacon(beacon.BluetoothName, beacon.BluetoothAddress, beacon.Id1.ToString(), beacon.Id2.ToString(), beacon.Id3.ToString(), beacon.Distance, beacon.Rssi));
                 };
 
                 if (_sharedBeacons.Count > 0 && OnRangingBeacons != null)

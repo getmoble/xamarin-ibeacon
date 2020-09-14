@@ -5,6 +5,6 @@ namespace Provider.AltBeacon.Models
 {
     public class RangingBeaconEventArgs: EventArgs
     {
-        public List<SharedBeacon> Beacons { get; set; }
+        public List<Beacon> Beacons { get; set; }
     }
 }
